@@ -1,57 +1,65 @@
-﻿using System.Reflection.Metadata.Ecma335;
-
-namespace MyProject;
+﻿namespace MyProject;
 class Program
 {
     static void Main()
     {
-        string TextOut() => ("+\tIncrement the byte at the data pointer.\r\n-\tDecrement the byte at the data pointer.\r\n>\tIncrement the data pointer.\r\n<\tDecrement the data pointer.\r\n.\tOutput the byte at the data pointer (ASCII format)\r\n,\tAccept one byte of input (ASCII format), storing its value in the byte at the data pointer.\r\n[\tIf the byte at the data pointer is zero jump it forward to the command after the matching ] command.\r\n]\tIf the byte at the data pointer is nonzero jump it back to the command after the matching [ command.");
-
-        long memoryLength = 30000;
-        byte[] data = new byte[memoryLength];
-        uint dataPointer = 0;
+        const long memoryLength = 30000;
+        byte[] tape = new byte[memoryLength];
+        uint pointer = 0;
         char currentInput;
-        string program=Console.ReadLine();
-        int count = 0;
-        bool toContinue = true;
-        while (toContinue)
+        string program = "+++++++++++>+>>>>++++++++++++++++++++++++++++++++++++++++++++>++++++++++++++++++++++++++++++++<<<<<<[>[>>>>>>+>+<<<<<<<-]>>>>>>>[<<<<<<<+>>>>>>>-]<[>++++++++++[-<-[>>+>+<<<-]>>>[<<<+>>>-]+<[>[-]<[-]]>[<<[>>>+<<<-]>>[-]]<<]>>>[>>+>+<<<-]>>>[<<<+>>>-]+<[>[-]<[-]]>[<<+>>[-]]<<<<<<<]>>>>>[++++++++++++++++++++++++++++++++++++++++++++++++.[-]]++++++++++<[->-<]>++++++++++++++++++++++++++++++++++++++++++++++++.[-]<<<<<<<<<<<<[>>>+>+<<<<-]>>>>[<<<<+>>>>-]<-[>>.>.<<<[-]]<<[>>+>+<<<-]>>>[<<<+>>>-]<<[<+>-]>[<+>-]<<<-]";
+        int i = 0;
+        int bracketCount = 0;
+        while (i < program.Length)
         {
-            currentInput = program[count];
-            switch (currentInput)
+            char c = program[i];
+            switch (c)
             {
                 case '+':
-                    data[dataPointer]++;
+                    tape[pointer]++;
                     break;
                 case '-':
-                    data[dataPointer]--;
+                    tape[pointer]--;
                     break;
                 case '>':
-                    dataPointer++;
+                    pointer++;
                     break;
                 case '<':
-                    dataPointer--;
+                    pointer--;
                     break;
                 case '.':
-                    Console.WriteLine((char)data[dataPointer]);
+                    Console.Write((char)tape[pointer]);
                     break;
                 case ',':
-                    data[dataPointer]=(byte)Char.Parse(Console.ReadLine());
+                    tape[pointer] = (byte)Char.Parse(Console.ReadLine());
                     break;
                 case '[':
-                    //TODO
+                    if (tape[pointer] == 0)
+                    {
+                        bracketCount++;
+                        while (program[i] != ']' || bracketCount != 0)
+                        {
+                            i++;
+                            if (program[i] == '[') bracketCount++;
+                            else if (program[i] == ']') bracketCount--;
+                        }
+                    }
                     break;
                 case ']':
-                    //TODO
-                    break;
-                case 'e':
-                    toContinue=false;
-                    break;
-                default:
+                    if (tape[pointer] != 0)
+                    {
+                        bracketCount++;
+                        while (program[i] != '[' || bracketCount != 0)
+                        {
+                            i--;
+                            //Console.WriteLine(i+" "+ tape[pointer]);
+                            if (program[i] == ']') bracketCount++;
+                            else if (program[i] == '[') bracketCount--;
+                        }
+                    }
                     break;
             }
-            count++;
-            //Console.WriteLine(TextOut());
+            i++;
         }
-
     }
 }
